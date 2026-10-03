@@ -71,9 +71,9 @@
 		if("gen")
 			return "capture_sack_[sprite_variant]_held"
 		if("onback")
-			return "capture_sack_[sprite_variant]_back"
+			return "capture_sack_[sprite_variant]_held"
 		if("onbelt")
-			return "capture_sack_[sprite_variant]_hip"
+			return "capture_sack_[sprite_variant]_held"
 
 /obj/item/capture_sack/proc/occupant_is_small()
 	if(!occupant)

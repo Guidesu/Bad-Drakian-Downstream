@@ -1,9 +1,9 @@
 /obj/item/capture_sack
 	name = "capture sack"
 	desc = "A broad cloth sack with a draw-rope and carrying straps. It is meant to move a subdued captive quickly."
-	icon = 'icons/roguetown/clothing/storage.dmi'
-	icon_state = "rucksack_tied_sling"
-	item_state = "rucksack"
+	icon = 'modular_azurepeak/icons/obj/items/capture_sack.dmi'
+	icon_state = "capture_sack_cloth_held"
+	item_state = "capture_sack_cloth_held"
 	w_class = WEIGHT_CLASS_BULKY
 	slot_flags = ITEM_SLOT_BACK|ITEM_SLOT_BELT|ITEM_SLOT_HIP
 	resistance_flags = FLAMMABLE
@@ -22,7 +22,7 @@
 	var/blade_escape_time = 4 SECONDS
 	var/easy_to_cut = TRUE
 	var/movespeed_id
-	var/inhand_icon_state = "capture_sack_inhand"
+	var/sprite_variant = "cloth"
 
 /obj/item/capture_sack/Initialize(mapload)
 	movespeed_id = "capture_sack_[REF(src)]"
@@ -48,22 +48,32 @@
 		return
 	switch(tag)
 		if("gen")
-			return list("shrink" = 0.85, "sx" = -8, "sy" = -8, "nx" = 8, "ny" = -7, "wx" = -6, "wy" = -7, "ex" = 6, "ey" = -7, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0, "nturn" = 0, "sturn" = 0, "wturn" = -15, "eturn" = 15, "nflip" = 8, "sflip" = 0, "wflip" = 0, "eflip" = 8)
+			return list("shrink" = 0.85, "sx" = -8, "sy" = -8, "nx" = 8, "ny" = -7, "wx" = -6, "wy" = -7, "ex" = 6, "ey" = -7, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0, "nturn" = -8, "sturn" = 8, "wturn" = -15, "eturn" = 15, "nflip" = 8, "sflip" = 0, "wflip" = 0, "eflip" = 8)
 		if("onback")
-			return list("shrink" = 0.85, "sx" = 0, "sy" = 1, "nx" = 0, "ny" = 2, "wx" = 2, "wy" = 1, "ex" = -2, "ey" = 1, "northabove" = 1, "southabove" = 0, "eastabove" = 0, "westabove" = 0, "nturn" = 0, "sturn" = 0, "wturn" = 0, "eturn" = 0, "nflip" = 0, "sflip" = 0, "wflip" = 0, "eflip" = 8)
+			return list("shrink" = 0.85, "sx" = 0, "sy" = 1, "nx" = 0, "ny" = 2, "wx" = 2, "wy" = 1, "ex" = -2, "ey" = 1, "northabove" = 1, "southabove" = 0, "eastabove" = 0, "westabove" = 0, "nturn" = 0, "sturn" = 0, "wturn" = 6, "eturn" = -6, "nflip" = 0, "sflip" = 0, "wflip" = 0, "eflip" = 8)
 		if("onbelt")
-			return list("shrink" = 0.55, "sx" = -3, "sy" = -6, "nx" = 3, "ny" = -6, "wx" = 0, "wy" = -6, "ex" = 1, "ey" = -6, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0, "nturn" = 0, "sturn" = 0, "wturn" = 0, "eturn" = 0, "nflip" = 0, "sflip" = 0, "wflip" = 0, "eflip" = 8)
+			return list("shrink" = 0.55, "sx" = -3, "sy" = -6, "nx" = 3, "ny" = -6, "wx" = 0, "wy" = -6, "ex" = 1, "ey" = -6, "northabove" = 0, "southabove" = 1, "eastabove" = 1, "westabove" = 0, "nturn" = 0, "sturn" = 0, "wturn" = 8, "eturn" = -8, "nflip" = 0, "sflip" = 0, "wflip" = 0, "eflip" = 8)
 
 /obj/item/capture_sack/generateonmob(tag, prop, behind = FALSE, mirrored = FALSE, used_index = null)
-	if(tag != "gen")
+	var/onmob_state = get_onmob_sprite_state(tag)
+	if(!onmob_state)
 		return ..()
 	var/old_icon = icon
 	var/old_icon_state = icon_state
 	icon = 'modular_azurepeak/icons/obj/items/capture_sack.dmi'
-	icon_state = inhand_icon_state
+	icon_state = onmob_state
 	. = ..()
 	icon = old_icon
 	icon_state = old_icon_state
+
+/obj/item/capture_sack/proc/get_onmob_sprite_state(tag)
+	switch(tag)
+		if("gen")
+			return "capture_sack_[sprite_variant]_held"
+		if("onback")
+			return "capture_sack_[sprite_variant]_back"
+		if("onbelt")
+			return "capture_sack_[sprite_variant]_hip"
 
 /obj/item/capture_sack/proc/occupant_is_small()
 	if(!occupant)
@@ -84,12 +94,10 @@
 
 /obj/item/capture_sack/equipped(mob/user, slot, initial = FALSE)
 	. = ..()
-	icon_state = (slot == SLOT_BELT) ? "satchel" : initial(icon_state)
 	update_carrier_slowdown()
 
 /obj/item/capture_sack/dropped(mob/user, silent = FALSE)
 	. = ..()
-	icon_state = initial(icon_state)
 	update_carrier_slowdown()
 
 /obj/item/capture_sack/attack(mob/living/target, mob/living/user)
@@ -256,7 +264,9 @@
 /obj/item/capture_sack/chain
 	name = "chain capture sack"
 	desc = "A capture sack caged in close-linked chain. It is heavy, stubborn, and difficult to cut from within."
-	color = "#889096"
+	icon_state = "capture_sack_iron_held"
+	item_state = "capture_sack_iron_held"
+	sprite_variant = "iron"
 	resistance_flags = FIRE_PROOF
 	max_integrity = 400
 	sewrepair = FALSE
@@ -266,15 +276,15 @@
 	blade_escape_time = 24 SECONDS
 	easy_to_cut = FALSE
 	carry_slowdown = 0.15
-	inhand_icon_state = "capture_sack_chain_inhand"
-
 /obj/item/capture_sack/chain/iron
 	name = "iron chain capture sack"
 	smeltresult = /obj/item/ingot/iron
 
 /obj/item/capture_sack/chain/steel
 	name = "steel chain capture sack"
-	color = "#aab2b8"
+	icon_state = "capture_sack_steel_held"
+	item_state = "capture_sack_steel_held"
+	sprite_variant = "steel"
 	smeltresult = /obj/item/ingot/steel
 	max_integrity = 500
 	base_escape_time = 70 SECONDS
